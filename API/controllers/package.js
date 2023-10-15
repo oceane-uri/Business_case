@@ -15,8 +15,8 @@ exports.getAllPackages = async (req, res) => {
 
 // Créer un nouveau package
 exports.createPackage = async (req, res) => {
-    const packageDTO = new CreatePackageDTO(req.body);
-    const nouveauPackage = new Package()
+    const nouveauPackage = new Package(req.body);
+
     try {
         const package = await nouveauPackage.save();
         res.status(201).json(package);

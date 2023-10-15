@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
 const {
-    UUID
-} = require('bson');
-// import { UUID } from 'mongodb';
-// import Uuid from 'uuid';
-
+    v4: uuidv4
+} = require('uuid');
 
 const deliverySchema = new mongoose.Schema({
     delivery_id: {
-        type: UUID,
-        required: true
+        type: String,
+        default: uuidv4, // Utilisation de la fonction uuidv4 pour générer un identifiant unique
+        unique: true
     },
     package_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Package",
-        required: true
+        type: String,
+        ref: 'Package' // Référence au modèle Package
     },
     pickup_time: Date,
     start_time: Date,
