@@ -1,4 +1,6 @@
 const Package = require('../models/package');
+const Delivery = require('../models/delivery');
+
 const CreatePackageDTO = require('../dto/createPackage');
 
 // Récupérer tous les packages
@@ -15,6 +17,8 @@ exports.getAllPackages = async (req, res) => {
 
 // Créer un nouveau package
 exports.createPackage = async (req, res) => {
+
+
     const nouveauPackage = new Package(req.body);
 
     try {
@@ -29,41 +33,61 @@ exports.createPackage = async (req, res) => {
 
 // Récupérer un package par son ID
 exports.getPackageById = async (req, res) => {
-    res.json(res.package);
+    const id = req.params.id;
+    Package.findById(id)
+      .then(package => {
+        if (!package)
+          res.status(404).send({message: `Package d'id = ${id} non trouvé.`});
+        else res.status(200).json(package);
+      })
+      .catch(err => {
+        res
+          .status(500)
+          .json({ message: "Erreur lors de la récupération du package d'id = " + id });
+      });
 };
 
 // Mettre à jour un package par son ID
 exports.updatePackage = async (req, res) => {
-    if (req.body.package_id != null) {
-        res.package.package_id = req.body.package_id;
-    }
 
-    if (req.body.active_delivery != null) {
-        res.package.active_delivery = req.body.active_delivery;
-    }
+    const id = req.params.id;
 
-    // ... Ajouter d'autres propriétés à mettre à jour ici ...
-
-    try {
-        const updatedPackage = await res.package.save();
-        res.json(updatedPackage);
-    } catch (error) {
-        res.status(400).json({
-            message: error.message
+    Package.findByIdAndUpdate(id, req.body, { useFindAndModify: false })
+    .then(package => {
+      if (!package) {
+        res.status(404).send({
+          message: `Package d'id = ${id} non trouvé.`
         });
-    }
+      } else res.send({message: `Package d'id = ${id} modifié avec succès.`});
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Erreur lors de la modification du package d'id = " + id
+      });
+    });
 };
 
 // Supprimer un package par son ID
 exports.deletePackage = async (req, res) => {
-    try {
-        await res.package.remove();
-        res.json({
-            message: 'Package supprimé'
+
+    const id = req.params.id;
+
+    Package.findByIdAndRemove(id)
+    .then(package => {
+      if (!package) {
+        res.status(404).send({
+          message: `Packaged'id = ${id} non trouvé`
         });
-    } catch (error) {
-        res.status(500).json({
-            message: error.message
+      } else {
+        res.send({
+          message: "Package supprimé"
         });
-    }
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Impossible de supprimer le package d'id " + id
+      });
+    });
+
 };

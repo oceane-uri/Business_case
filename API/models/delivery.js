@@ -1,21 +1,22 @@
 const mongoose = require('mongoose');
+
 const {
     v4: uuidv4
 } = require('uuid');
 
 const deliverySchema = new mongoose.Schema({
-    delivery_id: {
+    _id: {
         type: String,
-        default: uuidv4, // Utilisation de la fonction uuidv4 pour générer un identifiant unique
-        unique: true
+        default: uuidv4 // Utilisation de la fonction uuidv4 pour générer un identifiant unique 
     },
-    package_id: {
-        type: String,
-        ref: 'Package' // Référence au modèle Package
+
+    package: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'package' // Référence au modèle Package
     },
-    pickup_time: Date,
-    start_time: Date,
-    end_time: Date,
+    pickup_time: { type:Date, default: null},
+    start_time:  { type:Date, default: null},
+    end_time: { type:Date, default: null},
     location: {
         lat: Number,
         lng: Number
@@ -24,6 +25,12 @@ const deliverySchema = new mongoose.Schema({
         type: String,
         enum: ['open', 'picked-up', 'in-transit', 'delivered', 'failed']
     }
+});
+
+deliverySchema.method("toJSON", function() {
+    const { __v, _id, ...object } = this.toObject();
+    object.delivery_id = _id;
+    return object;
 });
 
 const Delivery = mongoose.model('Delivery', deliverySchema);
